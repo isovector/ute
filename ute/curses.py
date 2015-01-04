@@ -54,9 +54,10 @@ class UTView(urwid.WidgetWrap):
         body = urwid.BoxAdapter(body, 5)
         body = urwid.LineBox(body)
         dates = self.menu("Hello", ["a", "b"], lambda c, u: 1)
-        dates = urwid.BoxAdapter(dates, 5)
+        dates = TimeEdit()
+#        dates = urwid.BoxAdapter(dates, 5)
         dates = urwid.LineBox(dates)
-        w = urwid.Columns([(16, dates), body], 1)
+        w = urwid.Columns([(32, dates), body], 1)
         w = urwid.Filler(w)
         w = urwid.AttrMap(w, 'main shadow')
         return w
@@ -64,6 +65,81 @@ class UTView(urwid.WidgetWrap):
     def controls(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
+
+
+class TimeEdit(urwid.WidgetWrap):
+    def __init__(self):
+        self.edit = urwid.Edit("", "12:34")
+        urwid.WidgetWrap.__init__(self, self.edit)
+
+    def render(self, size, focus):
+        if self.edit.edit_pos > 4:
+            self.edit.edit_pos = 4
+
+        toRender = self.edit
+        if focus:
+            toRender = urwid.AttrMap(toRender, "header")
+        result = toRender.render(size, focus)
+        return result
+
+    def keypress(self, size, key):
+        allowed = map(lambda x: str(x), range(0, 10))
+
+        handled = []
+        handled.extend(allowed)
+        handled.extend(["left", "right", "delete", "backspace"])
+
+        if key not in handled:
+            return key
+
+        if key in allowed:
+            self.edit.keypress(size, "delete")
+
+        result = self.edit.keypress(size, key)
+
+        self.validate()
+
+        if self.edit.edit_pos == 2:
+            if key in ["left", "backspace"]:
+                self.edit.edit_pos -= 1
+            else:
+                self.edit.edit_pos += 1
+        if self.edit.edit_pos > 4:
+            return "right"
+        return result
+
+    def mouse_event(self, size, event, button, x, y, focus):
+        result = self.edit.mouse_event(size, event, button, x, y, focus)
+        if self.pos == 2:
+            self.pos = 3
+        return result
+
+    @property
+    def text(self):
+        return self.edit.edit_text
+
+    @text.setter
+    def text(self, value):
+        self.edit.edit_text = value
+
+    @property
+    def pos(self):
+        return self.edit.edit_pos
+
+    @pos.setter
+    def pos(self, value):
+        self.edit.edit_pos = value
+
+    def validate(self):
+        def clamp(val, bot, top):
+            return max(bot, min(val, top))
+
+        h = int(self.text[0:2])
+        m = int(self.text[3:5])
+        if not (0 < h and h < 24 and 0 < m and m < 60):
+            h = clamp(h, 0, 23)
+            m = clamp(m, 0, 59)
+            self.text = '{:0^2}:{:0^2}'.format(h, m)
 
 
 def main():
