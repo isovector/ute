@@ -1,9 +1,12 @@
 import urwid
+import datetime
+import time
 
 
 class TimeEdit(urwid.WidgetWrap):
     def __init__(self):
         self.widget = urwid.Edit("", "12:34")
+        self.fromTimestamp(time.time())
         urwid.WidgetWrap.__init__(self, self.widget)
 
     def render(self, size, focus):
@@ -46,6 +49,11 @@ class TimeEdit(urwid.WidgetWrap):
             self.pos = 3
         return result
 
+    def fromTimestamp(self, stamp):
+        dt = datetime.datetime.fromtimestamp(stamp)
+        self.setTime(dt.hour, dt.minute)
+
+
     @property
     def text(self):
         return self.widget.edit_text
@@ -62,15 +70,28 @@ class TimeEdit(urwid.WidgetWrap):
     def pos(self, value):
         self.widget.edit_pos = value
 
+    @property
+    def time(self):
+        (h, m) = self.parseTime()
+        return h * 3600 + m * 60
+
+
+    def parseTime(self):
+        h = int(self.text[0:2])
+        m = int(self.text[3:5])
+        return (h, m)
+
+    def setTime(self, h, m):
+        self.text = '{:02d}:{:02d}'.format(h, m)
+
     def validate(self):
         def clamp(val, bot, top):
             return max(bot, min(val, top))
 
-        h = int(self.text[0:2])
-        m = int(self.text[3:5])
+        (h, m) = self.parseTime()
         if not (0 < h and h < 24 and 0 < m and m < 60):
             h = clamp(h, 0, 23)
             m = clamp(m, 0, 59)
-            self.text = '{:0^2}:{:0^2}'.format(h, m)
+            self.setTime(h, m)
 
 
