@@ -4,9 +4,12 @@ import time
 
 
 class TimeEdit(urwid.WidgetWrap):
-    def __init__(self):
-        self.widget = urwid.Edit("", "12:34")
-        self.fromTimestamp(time.time())
+    def __init__(self, stamp):
+        if stamp == -1 or stamp == None:
+            stamp = time.time()
+
+        self.widget = urwid.Edit("", "00:00")
+        self.fromTimestamp(stamp)
         urwid.WidgetWrap.__init__(self, self.widget)
 
     def render(self, size, focus):

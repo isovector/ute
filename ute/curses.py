@@ -1,5 +1,7 @@
 import urwid
 from ute.gui import TimeEdit, Entry
+from ute.model import DB, Data
+from sys import argv
 
 class UTController:
     def __init__(self):
@@ -44,18 +46,25 @@ class UTView(urwid.WidgetWrap):
         body = urwid.ListBox(self.entries)
         w = urwid.Pile([body])
         w = urwid.AttrMap(w, 'main shadow')
+
+        for entry in Data.getIntervalsAfter(0):
+            self.entries.append(Entry(entry[0]))
+
         return w
 
     def controls(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
         if key == "ctrl n":
-            self.entries.append(Entry())
+            self.entries.append(Entry(-1))
             self.entries.set_focus(len(self.entries) - 1)
         if key == "ctrl e":
-            self.entries.append(Entry(True))
+            self.entries.append(Entry(-1, True))
             self.entries.set_focus(len(self.entries) - 1)
 
 
 def main():
-    UTController().main()
+    if len(argv) > 1 and argv[1] == "--install":
+        DB.create()
+    else:
+        UTController().main()
