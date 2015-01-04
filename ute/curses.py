@@ -30,7 +30,8 @@ class UTView(urwid.WidgetWrap):
         ('line',         'black',      'light gray', 'standout'),
         ('pg normal',    'white',      'black', 'standout'),
         ('pg complete',  'white',      'dark magenta'),
-        ('pg smooth',     'dark magenta','black')
+        ('pg smooth',     'dark magenta','black'),
+        ('field',       'white', 'dark gray', '')
         ]
 
     def __init__(self, controller):
@@ -50,12 +51,12 @@ class UTView(urwid.WidgetWrap):
         return urwid.ListBox(urwid.SimpleFocusListWalker(body))
 
     def main_window(self):
-        body = self.menu("Hello", ["a", "b"], lambda c, u: 1)
-        body = urwid.BoxAdapter(body, 5)
-        body = urwid.LineBox(body)
+#        body = self.menu("Hello", ["a", "b"], lambda c, u: 1)
+#        body = urwid.BoxAdapter(body, 5)
+#        body = urwid.LineBox(body)
+        body = Entry()
         dates = self.menu("Hello", ["a", "b"], lambda c, u: 1)
-        dates = TimeEdit()
-#        dates = urwid.BoxAdapter(dates, 5)
+        dates = urwid.BoxAdapter(dates, 5)
         dates = urwid.LineBox(dates)
         w = urwid.Columns([(32, dates), body], 1)
         w = urwid.Filler(w)
@@ -67,19 +68,42 @@ class UTView(urwid.WidgetWrap):
             raise urwid.ExitMainLoop()
 
 
+class Entry(urwid.WidgetWrap):
+    def __init__(self):
+        type = urwid.AttrMap(urwid.Edit(), "field")
+        desc = urwid.AttrMap(urwid.Edit(), "field")
+        start = urwid.AttrMap(TimeEdit(), "field")
+        end = urwid.AttrMap(TimeEdit(), "field")
+
+        self.widget = urwid.Columns(
+            [(16, type), desc, (7, start), (7, end)],
+            dividechars = 1)
+        urwid.WidgetWrap.__init__(self, self.widget)
+
+    def keypress(self, size, key):
+        if "tab" in key:
+            try:
+                if "shift" in key:
+                    self.widget.focus_col -= 1
+                else:
+                    self.widget.focus_col += 1
+                return None
+            except:
+                pass
+        return self.widget.keypress(size, key)
+
+
 class TimeEdit(urwid.WidgetWrap):
     def __init__(self):
-        self.edit = urwid.Edit("", "12:34")
-        urwid.WidgetWrap.__init__(self, self.edit)
+        self.widget = urwid.Edit("", "12:34")
+        urwid.WidgetWrap.__init__(self, self.widget)
 
     def render(self, size, focus):
-        if self.edit.edit_pos > 4:
-            self.edit.edit_pos = 4
+        if self.widget.edit_pos > 4:
+            self.widget.edit_pos = 4
 
-        toRender = self.edit
-        if focus:
-            toRender = urwid.AttrMap(toRender, "header")
-        result = toRender.render(size, focus)
+        toRender = self.widget
+        result = self.widget.render(size, focus)
         return result
 
     def keypress(self, size, key):
@@ -93,42 +117,42 @@ class TimeEdit(urwid.WidgetWrap):
             return key
 
         if key in allowed:
-            self.edit.keypress(size, "delete")
+            self.widget.keypress(size, "delete")
 
-        result = self.edit.keypress(size, key)
+        result = self.widget.keypress(size, key)
 
         self.validate()
 
-        if self.edit.edit_pos == 2:
+        if self.widget.edit_pos == 2:
             if key in ["left", "backspace"]:
-                self.edit.edit_pos -= 1
+                self.widget.edit_pos -= 1
             else:
-                self.edit.edit_pos += 1
-        if self.edit.edit_pos > 4:
+                self.widget.edit_pos += 1
+        if self.widget.edit_pos > 4:
             return "right"
         return result
 
     def mouse_event(self, size, event, button, x, y, focus):
-        result = self.edit.mouse_event(size, event, button, x, y, focus)
+        result = self.widget.mouse_event(size, event, button, x, y, focus)
         if self.pos == 2:
             self.pos = 3
         return result
 
     @property
     def text(self):
-        return self.edit.edit_text
+        return self.widget.edit_text
 
     @text.setter
     def text(self, value):
-        self.edit.edit_text = value
+        self.widget.edit_text = value
 
     @property
     def pos(self):
-        return self.edit.edit_pos
+        return self.widget.edit_pos
 
     @pos.setter
     def pos(self, value):
-        self.edit.edit_pos = value
+        self.widget.edit_pos = value
 
     def validate(self):
         def clamp(val, bot, top):
