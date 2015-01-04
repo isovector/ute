@@ -41,6 +41,7 @@ class UTView(urwid.WidgetWrap):
         self.start_time = None
         self.offset = 0
         self.last_offset = None
+        self.entries = urwid.SimpleListWalker([])
         urwid.WidgetWrap.__init__(self, self.main_window())
 
     def menu(self, title, choices, onSelect):
@@ -52,21 +53,17 @@ class UTView(urwid.WidgetWrap):
         return urwid.ListBox(urwid.SimpleFocusListWalker(body))
 
     def main_window(self):
-#        body = self.menu("Hello", ["a", "b"], lambda c, u: 1)
-#        body = urwid.BoxAdapter(body, 5)
-#        body = urwid.LineBox(body)
-        body = Entry()
-        dates = self.menu("Hello", ["a", "b"], lambda c, u: 1)
-        dates = urwid.BoxAdapter(dates, 5)
-        dates = urwid.LineBox(dates)
-        w = urwid.Columns([(32, dates), body], 1)
-        w = urwid.Filler(w)
+        body = urwid.ListBox(self.entries)
+        w = urwid.Pile([body])
         w = urwid.AttrMap(w, 'main shadow')
         return w
 
     def controls(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
+        if key == "ctrl n":
+            self.entries.append(Entry())
+            self.entries.set_focus(len(self.entries) - 1)
 
 
 def main():
