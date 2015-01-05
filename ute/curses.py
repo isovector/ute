@@ -2,7 +2,7 @@ import urwid
 from ute.gui import TimeEdit, Entry
 from ute.model import DB, Data
 from ute import Message
-from sys import argv
+from sys import argv, stdout
 from time import time
 import socket
 
@@ -21,8 +21,9 @@ class UTController:
         self.pipe.bind(("localhost", 6112))
         self.loop.watch_file(self.pipe.fileno(), self.handle_pipe)
 
-
         self.loop.set_alarm_in(5, self.alarm)
+
+        stdout.write("\x1b]2;ute: the unified tracker\x07")
         self.loop.run()
 
     def alarm(self, _, ud):
