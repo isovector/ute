@@ -20,7 +20,7 @@ def closeInterval(id, close):
 
 def getIntervalsAfter(when):
     return DB.query(
-        "SELECT id FROM interval WHERE open > ?",
+        "SELECT id FROM interval WHERE open > ? ORDER BY open ASC",
         [when]
     )
 

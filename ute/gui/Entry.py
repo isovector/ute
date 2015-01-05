@@ -4,6 +4,8 @@ from ute.model import Data
 from ute.model import DB
 
 class Entry(urwid.WidgetWrap):
+    _selectable = True
+
     def __init__(self, id = -1, event = False):
         self.event = event
         self.id = id
@@ -26,6 +28,12 @@ class Entry(urwid.WidgetWrap):
         self.desc_edit = urwid.Edit("", defaults[2])
         self.start_edit = TimeEdit(defaults[3])
         self.end_edit = TimeEdit(defaults[4])
+
+        self.children = [
+            self.type_edit,
+            self.desc_edit,
+            self.start_edit,
+            self.end_edit ]
 
         end = None
         if not event:
@@ -71,7 +79,7 @@ class Entry(urwid.WidgetWrap):
 
 
     def keypress(self, size, key):
-        if key == "enter":
+        if key == "ctrl x":
             self.doClose()
             return None
 
@@ -101,4 +109,8 @@ class Entry(urwid.WidgetWrap):
             self.sync()
         self.was_focused = focus
 
-        return self.widget.render(size, focus)
+        toRender = self.widget
+        if focus:
+            toRender = urwid.AttrMap(toRender, "header")
+
+        return toRender.render(size, focus)

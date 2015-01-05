@@ -2,6 +2,7 @@ import urwid
 from ute.gui import TimeEdit, Entry
 from ute.model import DB, Data
 from sys import argv
+from time import time
 
 class UTController:
     def __init__(self):
@@ -13,7 +14,12 @@ class UTController:
             self.view.palette,
             unhandled_input = self.view.controls
         )
+        self.loop.set_alarm_in(5, self.alarm)
         self.loop.run()
+
+    def alarm(self, _, ud):
+        self.view.refresh()
+        self.loop.set_alarm_in(5, self.alarm)
 
 
 class UTView(urwid.WidgetWrap):
@@ -47,10 +53,29 @@ class UTView(urwid.WidgetWrap):
         w = urwid.Pile([body])
         w = urwid.AttrMap(w, 'main shadow')
 
-        for entry in Data.getIntervalsAfter(0):
-            self.entries.append(Entry(entry[0]))
+        self.refresh()
 
         return w
+
+    def refresh(self):
+        ids = map(lambda x: x[0], Data.getIntervalsAfter(time() - 24 * 3600))
+        toRemove = []
+        for i in range(len(self.entries)):
+            entry = self.entries[i]
+            if entry.id == -1:
+                continue
+
+            if entry.id not in ids and entry.is_closed:
+                toRemove.append(i)
+            else:
+                ids.remove(entry.id)
+
+        for i in reversed(toRemove):
+            self.entries[i].sync()
+            self.entries.pop(i)
+
+        for id in ids:
+            self.entries.append(Entry(id))
 
     def controls(self, key):
         if key in ('q', 'Q'):

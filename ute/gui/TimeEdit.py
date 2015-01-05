@@ -1,13 +1,15 @@
 import urwid
 import datetime
 import time
+from ute.utils import *
 
 
 class TimeEdit(urwid.WidgetWrap):
     def __init__(self, stamp):
         if stamp == -1 or stamp == None:
-            stamp = time.time()
+            stamp = now()
 
+        self.morning = morningOf(stamp)
         self.widget = urwid.Edit("", "00:00")
         self.fromTimestamp(stamp)
         urwid.WidgetWrap.__init__(self, self.widget)
@@ -76,7 +78,7 @@ class TimeEdit(urwid.WidgetWrap):
     @property
     def time(self):
         (h, m) = self.parseTime()
-        return h * 3600 + m * 60
+        return self.morning + h * 3600 + m * 60
 
 
     def parseTime(self):
