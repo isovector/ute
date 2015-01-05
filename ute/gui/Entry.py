@@ -1,4 +1,5 @@
 import urwid
+from ute.gui.Catch import Catch
 from ute.gui import TimeEdit
 from ute.model import Data
 from ute.model import DB
@@ -33,7 +34,7 @@ class Entry(urwid.WidgetWrap):
         end = None
         if not event and self.is_closed:
             end = wrap(self.end_edit)
-        elif not self.is_closed:
+        elif not self.is_closed and not self.event:
             end = urwid.Text("open")
         else:
             end = urwid.Text("event")
@@ -43,11 +44,15 @@ class Entry(urwid.WidgetWrap):
                 (16, wrap(self.type_edit)),
                 wrap(self.desc_edit),
                 (7, wrap(self.start_edit)),
-                (7, end)
+                (7, end),
+                (1, Catch())
             ],
             dividechars = 1
         )
         urwid.WidgetWrap.__init__(self, self.widget)
+
+        if not self.is_closed and event:
+            self.doClose()
 
     @property
     def type(self):
@@ -77,9 +82,10 @@ class Entry(urwid.WidgetWrap):
             return
 
         self.end_edit.fromTimestamp(now())
-        self.widget.contents[3] = (
-            wrap(self.end_edit),
-            self.widget.options("given", 7))
+        if not self.event:
+            self.widget.contents[3] = (
+                wrap(self.end_edit),
+                self.widget.options("given", 7))
 
         self.is_closed = True
         Data.closeInterval(self.id, self.close)
