@@ -29,13 +29,17 @@ class TimeEdit(urwid.WidgetWrap):
 
         handled = []
         handled.extend(allowed)
-        handled.extend(["left", "right", "delete", "backspace"])
+        handled.extend(["left", "right", "delete", "backspace", "enter"])
 
         if key not in handled:
             return key
 
         if key in allowed:
             self.widget.keypress(size, "delete")
+
+        if key == "enter":
+            self.fromTimestamp(now())
+            return
 
         result = self.widget.keypress(size, key)
 

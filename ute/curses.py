@@ -103,11 +103,9 @@ class UTView(urwid.WidgetWrap):
     def controls(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
-
-        if key == "ctrl n":
+        elif key == "ctrl n":
             self.add_entry(Entry(-1))
-
-        if key == "ctrl e":
+        elif key == "ctrl e":
             self.add_entry(Entry(-1, event = True))
 
 
