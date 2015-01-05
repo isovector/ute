@@ -1,11 +1,11 @@
 import json
 
 class Message:
-    def __init__(self, msgtype, id = None, type = None, desc = None, open = None, close = None):
-        if msgtype not in ["new", "close"]:
-            raise Exception("Invalid msgtype")
+    def __init__(self, action, id = None, type = None, desc = None, open = None, close = None):
+        if action not in ["new", "close"]:
+            raise Exception("Invalid action")
 
-        self.msgtype = msgtype
+        self.action = action
         self.id = id
         self.type = type
         self.desc = desc
@@ -19,7 +19,7 @@ class Message:
     def fromJson(c, js):
         obj = json.loads(js)
         return Message(
-            msgtype = obj['msgtype'],
+            action = obj['action'],
             id = obj['id'],
             type = obj['type'],
             desc = obj['desc'],

@@ -11,22 +11,28 @@ def wrap(w):
 class Entry(urwid.WidgetWrap):
     _selectable = True
 
-    def __init__(self, id = -1, event = False):
+    def __init__(self, id = -1, msg = None, event = False):
         self.event = event
         self.id = id
         self.was_focused = False
         self.is_closed = False
         self.is_dirty = True
 
-        defaults = (0, "", "", -1, -1)
+        defaults = (-2, "", "", -1, -1)
         if id != -1:
             defaults = Data.getInterval(id)
+
+        if msg != None:
+            defaults = (msg.id, msg.type, msg.desc, msg.open, msg.close)
+
+        if defaults[0] != -2:
             if defaults[3] == defaults[4]:
                 event = True
             if defaults[4] != None:
                 self.is_closed = True
-            self.is_dirty = False
 
+            if not (id > 0):
+                self.is_dirty = False
 
         self.type_edit = urwid.Edit("", defaults[1])
         self.desc_edit = urwid.Edit("", defaults[2])
@@ -37,7 +43,7 @@ class Entry(urwid.WidgetWrap):
         if not event and self.is_closed:
             end = wrap(self.end_edit)
         elif not self.is_closed and not self.event:
-            end = urwid.Text("open")
+            end = urwid.Text(("open", "open"))
         else:
             end = urwid.Text("event")
 

@@ -9,6 +9,8 @@ class TimeEdit(urwid.WidgetWrap):
         if stamp == -1 or stamp == None:
             stamp = now()
 
+        stamp = float(int(stamp))
+
         self.morning = 0
         self.widget = urwid.Edit("", "00:00")
         self.fromTimestamp(stamp)

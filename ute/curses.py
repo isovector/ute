@@ -32,8 +32,8 @@ class UTController:
     def handle_pipe(self):
         (data, _) = self.pipe.recvfrom(1024)
         msg = Message.fromJson(data)
+        self.view.handle_message(msg)
         self.loop.draw_screen()
-        print msg.msgtype
 
 
 class UTView(urwid.WidgetWrap):
@@ -42,18 +42,7 @@ class UTView(urwid.WidgetWrap):
         ('header',       'white',      'dark red',   'bold'),
         ('screen edge',  'light blue', 'dark cyan'),
         ('main shadow',  'dark gray',  'black'),
-        ('line',         'black',      'light gray', 'standout'),
-        ('bg background','light gray', 'black'),
-        ('bg 1',         'black',      'dark blue', 'standout'),
-        ('bg 1 smooth',  'dark blue',  'black'),
-        ('bg 2',         'black',      'dark cyan', 'standout'),
-        ('bg 2 smooth',  'dark cyan',  'black'),
-        ('button normal','light gray', 'dark blue', 'standout'),
-        ('button select','white',      'dark green'),
-        ('line',         'black',      'light gray', 'standout'),
-        ('pg normal',    'white',      'black', 'standout'),
-        ('pg complete',  'white',      'dark magenta'),
-        ('pg smooth',     'dark magenta','black'),
+        ('open',         'yellow',      '', 'bold'),
         ('field',       'white', 'dark gray', '')
         ]
 
@@ -95,17 +84,30 @@ class UTView(urwid.WidgetWrap):
         for id in ids:
             self.entries.append(Entry(id))
 
+    def handle_message(self, msg):
+        if msg.action == "new":
+            self.add_entry(Entry(msg = msg))
+
+        elif msg.action == "close":
+            for entry in self.entries:
+                if entry.id == msg.id:
+                    entry.doClose()
+
+
+    def add_entry(self, entry):
+        self.entries.append(entry)
+        self.entries.set_focus(len(self.entries) - 1)
+
+
     def controls(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
 
         if key == "ctrl n":
-            self.entries.append(Entry(-1))
-            self.entries.set_focus(len(self.entries) - 1)
+            self.add_entry(Entry(-1))
 
         if key == "ctrl e":
-            self.entries.append(Entry(-1, True))
-            self.entries.set_focus(len(self.entries) - 1)
+            self.add_entry(Entry(-1, event = True))
 
 
 def main():
