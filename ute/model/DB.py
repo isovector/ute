@@ -1,7 +1,8 @@
 import sqlite3
 from os.path import expanduser
+from ute.utils import *
 
-_conn = sqlite3.connect("%s/.ute.db" % expanduser("~"))
+_conn = sqlite3.connect(homeDir(".ute.db"))
 c = _conn.cursor()
 
 

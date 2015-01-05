@@ -1,0 +1,8 @@
+{
+    "colors": {
+        "highlight": ["yellow", "dark gray", ""]
+    },
+    "map": {
+        "highlight": ["commit"]
+    }
+}

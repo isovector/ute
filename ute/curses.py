@@ -1,10 +1,13 @@
 import urwid
-from ute.gui import TimeEdit, Entry
-from ute.model import DB, Data
-from ute import Message
+import socket
 from sys import argv, stdout
 from time import time
-import socket
+
+from ute import Message
+from ute.gui import TimeEdit, Entry
+from ute.gui.CustomPalette import *
+from ute.model import DB, Data
+
 
 class UTController:
     def __init__(self):
@@ -51,6 +54,8 @@ class UTView(urwid.WidgetWrap):
         self.controller = controller
         self.entries = urwid.SimpleListWalker([])
         urwid.WidgetWrap.__init__(self, self.main_window())
+        build_custom_palette()
+        self.palette.extend(custom_palette)
 
     def main_window(self):
         body = urwid.ListBox(self.entries)
@@ -63,6 +68,7 @@ class UTView(urwid.WidgetWrap):
 
     def refresh(self):
         for entry in self.entries:
+            entry.refresh()
             if entry.is_dirty:
                 entry.sync()
 

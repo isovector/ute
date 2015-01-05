@@ -1,12 +1,16 @@
 import urwid
-from ute.gui.Catch import Catch
+
 from ute.gui import TimeEdit
+from ute.gui.Catch import Catch
+from ute.gui.CustomPalette import *
 from ute.model import Data
 from ute.model import DB
 from ute.utils import *
 
-def wrap(w):
-    return urwid.AttrMap(w, "field")
+TYPE_WIDTH = 16
+
+def wrap(w, color = "field"):
+    return urwid.AttrMap(w, color)
 
 class Entry(urwid.WidgetWrap):
     _selectable = True
@@ -49,7 +53,7 @@ class Entry(urwid.WidgetWrap):
 
         self.widget = urwid.Columns(
             [
-                (16, wrap(self.type_edit)),
+                (TYPE_WIDTH, wrap(self.type_edit)),
                 wrap(self.desc_edit),
                 (7, wrap(self.start_edit)),
                 (7, end),
@@ -116,6 +120,20 @@ class Entry(urwid.WidgetWrap):
 
         self.is_dirty = True
         return self.widget.keypress(size, key)
+
+    def refresh(self):
+        color = "field"
+        if self.type in type_mapping:
+            color = type_mapping[self.type]
+        self.widget.contents[0] = (
+            wrap(self.type_edit, color),
+            self.widget.options("given", TYPE_WIDTH))
+        self.widget.contents[1] = (
+            wrap(self.desc_edit, color),
+            self.widget.options("weight", 1))
+
+
+
 
     def sync(self):
         self.id = Data.openInterval(
