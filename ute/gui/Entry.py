@@ -16,6 +16,7 @@ class Entry(urwid.WidgetWrap):
         self.id = id
         self.was_focused = False
         self.is_closed = False
+        self.is_dirty = True
 
         defaults = (0, "", "", -1, -1)
         if id != -1:
@@ -24,6 +25,7 @@ class Entry(urwid.WidgetWrap):
                 event = True
             if defaults[4] != None:
                 self.is_closed = True
+            self.is_dirty = False
 
 
         self.type_edit = urwid.Edit("", defaults[1])
@@ -105,6 +107,8 @@ class Entry(urwid.WidgetWrap):
                 return None
             except:
                 pass
+
+        self.is_dirty = True
         return self.widget.keypress(size, key)
 
     def sync(self):
@@ -116,6 +120,7 @@ class Entry(urwid.WidgetWrap):
             self.close
         )
         DB.commit()
+        self.is_dirty = False
 
     def render(self, size, focus):
         if not focus and self.was_focused:
