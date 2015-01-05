@@ -9,7 +9,7 @@ class TimeEdit(urwid.WidgetWrap):
         if stamp == -1 or stamp == None:
             stamp = now()
 
-        self.morning = morningOf(stamp)
+        self.morning = 0
         self.widget = urwid.Edit("", "00:00")
         self.fromTimestamp(stamp)
         urwid.WidgetWrap.__init__(self, self.widget)
@@ -55,6 +55,7 @@ class TimeEdit(urwid.WidgetWrap):
         return result
 
     def fromTimestamp(self, stamp):
+        self.morning = morningOf(stamp)
         dt = datetime.datetime.fromtimestamp(stamp)
         self.setTime(dt.hour, dt.minute)
 

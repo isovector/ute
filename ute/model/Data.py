@@ -19,14 +19,15 @@ def closeInterval(id, close):
     )
 
 def getIntervalsAfter(when):
-    return DB.query(
+    return map(
+        lambda x: x[0], DB.query(
         "SELECT id FROM interval WHERE open > ? ORDER BY open ASC",
         [when]
-    )
+    ))
 
-def getOpeninterval():
+def getOpenIntervals():
     return DB.query(
-        "SELECT * FROM interval WHERE close IS NULL"
+        "SELECT * FROM interval WHERE close IS NULL ORDER BY open ASC"
     )
 
 def getInterval(id):
@@ -36,6 +37,7 @@ def getInterval(id):
     )
 
 def getTypes():
-    return DB.query(
-        "SELECT DISTINCT type FROM interals"
-    )
+    return map(
+        lambda x: x[0], DB.query(
+        "SELECT DISTINCT type FROM interals ORDER BY type ASC"
+    ))

@@ -2,6 +2,10 @@ import urwid
 from ute.gui import TimeEdit
 from ute.model import Data
 from ute.model import DB
+from ute.utils import *
+
+def wrap(w):
+    return urwid.AttrMap(w, "field")
 
 class Entry(urwid.WidgetWrap):
     _selectable = True
@@ -21,23 +25,16 @@ class Entry(urwid.WidgetWrap):
                 self.is_closed = True
 
 
-        def wrap(w):
-            return urwid.AttrMap(w, "field")
-
         self.type_edit = urwid.Edit("", defaults[1])
         self.desc_edit = urwid.Edit("", defaults[2])
         self.start_edit = TimeEdit(defaults[3])
         self.end_edit = TimeEdit(defaults[4])
 
-        self.children = [
-            self.type_edit,
-            self.desc_edit,
-            self.start_edit,
-            self.end_edit ]
-
         end = None
-        if not event:
+        if not event and self.is_closed:
             end = wrap(self.end_edit)
+        elif not self.is_closed:
+            end = urwid.Text("open")
         else:
             end = urwid.Text("event")
 
@@ -48,7 +45,8 @@ class Entry(urwid.WidgetWrap):
                 (7, wrap(self.start_edit)),
                 (7, end)
             ],
-            dividechars = 1)
+            dividechars = 1
+        )
         urwid.WidgetWrap.__init__(self, self.widget)
 
     @property
@@ -71,9 +69,18 @@ class Entry(urwid.WidgetWrap):
             return None
         return self.end_edit.time
 
+
     def doClose(self):
-        if self.id == -1:
-            self.sync()
+        self.sync()
+
+        if self.is_closed:
+            return
+
+        self.end_edit.fromTimestamp(now())
+        self.widget.contents[3] = (
+            wrap(self.end_edit),
+            self.widget.options("given", 7))
+
         self.is_closed = True
         Data.closeInterval(self.id, self.close)
 

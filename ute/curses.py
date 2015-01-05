@@ -58,7 +58,7 @@ class UTView(urwid.WidgetWrap):
         return w
 
     def refresh(self):
-        ids = map(lambda x: x[0], Data.getIntervalsAfter(time() - 24 * 3600))
+        ids = Data.getIntervalsAfter(time() - 24 * 3600)
         toRemove = []
         for i in range(len(self.entries)):
             entry = self.entries[i]
