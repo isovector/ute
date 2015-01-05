@@ -12,6 +12,7 @@ setup(
     entry_points={
         "console_scripts": {
             "ute = ute.curses:main",
+            "ute-remote = ute.cli:main"
         }
     },
 

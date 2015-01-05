@@ -21,7 +21,7 @@ def closeInterval(id, close):
 def getIntervalsAfter(when):
     return map(
         lambda x: x[0], DB.query(
-        "SELECT id FROM interval WHERE open > ? ORDER BY open ASC",
+        "SELECT id FROM interval WHERE open > ? OR close IS NULL ORDER BY open ASC",
         [when]
     ))
 

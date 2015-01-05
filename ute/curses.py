@@ -1,8 +1,10 @@
 import urwid
 from ute.gui import TimeEdit, Entry
 from ute.model import DB, Data
+from ute import Message
 from sys import argv
 from time import time
+import socket
 
 class UTController:
     def __init__(self):
@@ -14,12 +16,24 @@ class UTController:
             self.view.palette,
             unhandled_input = self.view.controls
         )
+
+        self.pipe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.pipe.bind(("localhost", 6112))
+        self.loop.watch_file(self.pipe.fileno(), self.handle_pipe)
+
+
         self.loop.set_alarm_in(5, self.alarm)
         self.loop.run()
 
     def alarm(self, _, ud):
         self.view.refresh()
         self.loop.set_alarm_in(5, self.alarm)
+
+    def handle_pipe(self):
+        (data, _) = self.pipe.recvfrom(1024)
+        msg = Message.fromJson(data)
+        self.loop.draw_screen()
+        print msg.msgtype
 
 
 class UTView(urwid.WidgetWrap):
@@ -80,9 +94,11 @@ class UTView(urwid.WidgetWrap):
     def controls(self, key):
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
+
         if key == "ctrl n":
             self.entries.append(Entry(-1))
             self.entries.set_focus(len(self.entries) - 1)
+
         if key == "ctrl e":
             self.entries.append(Entry(-1, True))
             self.entries.set_focus(len(self.entries) - 1)

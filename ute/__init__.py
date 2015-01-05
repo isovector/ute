@@ -1,2 +1,4 @@
-__all__ = [ 'utils' ]
+__all__ = [ 'utils', 'Message' ]
+
 from ute.utils import *
+from ute.Message import Message
