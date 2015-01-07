@@ -72,7 +72,7 @@ class UTView(urwid.WidgetWrap):
             if entry.is_dirty:
                 entry.sync()
 
-        ids = Data.getIntervalsAfter(time() - 24 * 3600)
+        ids = Data.getIntervalsAfter(time() - 6 * 3600)
         toRemove = []
         for i in range(len(self.entries)):
             entry = self.entries[i]
